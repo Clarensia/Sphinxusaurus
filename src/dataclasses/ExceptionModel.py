@@ -24,6 +24,15 @@ class ExceptionModel:
     """The long description that will be written inside of the file
     """
 
+    is_abstract: bool = False
+    """If the class is an abstract class or not
+    
+    The abstract class is usually the parent class of every other
+    exceptions, this way, the client can simply catch the parent
+    exception to know that the exception comes from our client and
+    not from somewhere else
+    """
+
     attributes: List[Attribute] = field(default_factory=list)
     """The list of attributes that we have for the exception.
     
