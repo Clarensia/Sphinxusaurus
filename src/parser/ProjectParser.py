@@ -4,12 +4,14 @@ from os.path import isfile, join
 from src.dataclasses.Project import Project
 from src.parser.InitParser import InitParser
 from src.parser.MainClassParser import MainClassParser
+from src.parser.ModelParser import ModelParser
 
 
 class ProjectParser:
     def __init__(self):
         self._main_class_parser = MainClassParser()
         self._module_init_parser = InitParser()
+        self._model_parser = ModelParser()
     
     def parse_project(self, folder_location: str) -> Project:
         """Parse the given folder that contains our module to a
@@ -32,6 +34,6 @@ class ProjectParser:
             if model_file == "__init__.py":
                 ret.init_doc["models"] = self._module_init_parser.parse_file(curr_model_path)
             else:
-                pass
+                ret.models.append(self._model_parser.parse_file(curr_model_path))
 
         return ret
