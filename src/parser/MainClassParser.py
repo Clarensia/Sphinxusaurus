@@ -7,9 +7,10 @@ from src.dataclasses.main_class.MainClass import MainClass
 from src.dataclasses.main_class.MainClassMethod import MainClassMethod
 from src.dataclasses.main_class.MethodException import MethodException
 from src.dataclasses.main_class.MethodParameter import MethodParameter
+from src.parser.FileParser import FileParser
 
 
-class MainClassParser:
+class MainClassParser(FileParser):
     """
     Parse the main file that has multiple functions.
     """
@@ -84,8 +85,7 @@ class MainClassParser:
         :return: The class parsed
         :rtype: MainClass
         """
-        with open(path, "r") as source:
-            tree = ast.parse(source.read())
+        tree = self.get_tree(path)
         for node in tree.body:
             if isinstance(node, ast.ClassDef):
                 ret = MainClass()
