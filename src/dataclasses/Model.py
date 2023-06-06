@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import List
 
-from src.dataclasses.model.ModelAttribute import ModelAttribute
+from src.dataclasses.Attribute import Attribute
 
 
 @dataclass
@@ -25,4 +25,4 @@ class Model:
     of the category inside of the documentation
     """
 
-    attributes: List[ModelAttribute] = field(default_factory=list)
+    attributes: List[Attribute] = field(default_factory=list)

@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import List
 
-from src.dataclasses.ModelAttribute import ModelAttribute
+from src.dataclasses.Attribute import Attribute
 
 
 @dataclass
@@ -24,7 +24,7 @@ class ExceptionModel:
     """The long description that will be written inside of the file
     """
 
-    attributes: List[ModelAttribute] = field(default_factory=list)
+    attributes: List[Attribute] = field(default_factory=list)
     """The list of attributes that we have for the exception.
     
     Usually, we only have:

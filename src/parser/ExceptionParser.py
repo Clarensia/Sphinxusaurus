@@ -1,4 +1,4 @@
-from src.dataclasses.exception.ExceptionModel import ExceptionModel
+from src.dataclasses.ExceptionModel import ExceptionModel
 from src.parser.FileParser import FileParser
 
 

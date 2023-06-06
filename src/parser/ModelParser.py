@@ -1,6 +1,6 @@
 import ast
 from typing import List, Tuple
-from src.dataclasses.ModelAttribute import ModelAttribute
+from src.dataclasses.Attribute import Attribute
 from src.parser.FileParser import FileParser
 from src.dataclasses.Model import Model
 from src.utils import get_short_description
@@ -51,7 +51,7 @@ class ModelParser(FileParser):
                 ret.long_description = class_docstring
             attributes_desc = self._get_attribute_nodes(node.body)
             for definition, description in attributes_desc:
-                attribute = ModelAttribute()
+                attribute = Attribute()
                 attribute.name = definition.target.id
                 attribute.attribute_type = ast.unparse(definition.annotation)
                 doc_lines = description.value.value.split("\n\n    Example:")

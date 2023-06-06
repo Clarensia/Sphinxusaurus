@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from typing import Dict, List
 
 from src.dataclasses.ModuleInit import ModuleInit
-from src.dataclasses.exception.ExceptionModel import ExceptionModel
+from src.dataclasses.ExceptionModel import ExceptionModel
 from src.dataclasses.main_class.MainClass import MainClass
 from src.dataclasses.Model import Model
 
