@@ -57,10 +57,12 @@ class ModelParser(FileParser):
                     attribute.attribute_type = definition.annotation.id
                 elif isinstance(definition.annotation, ast.Str):  # Handle str type for Python 3.7
                     attribute.attribute_type = definition.annotation.s
+                elif isinstance(definition.annotation, ast.Subscript):
+                    attribute.attribute_type = ast.unparse(definition.annotation)
                 else:
                     raise Exception(f"Unknown annotation type: {type(definition.annotation)}")
 
-                doc_lines = description.value.value.split("\n\n    Example: ")
+                doc_lines = description.value.value.split("\n\n    Example:")
                 attribute.attribute_description = doc_lines[0]
                 attribute.example = doc_lines[1]
 
