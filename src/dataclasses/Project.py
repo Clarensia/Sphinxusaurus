@@ -3,7 +3,7 @@ from typing import Dict, List
 
 from src.dataclasses.ModuleInit import ModuleInit
 from src.dataclasses.main_class.MainClass import MainClass
-from src.dataclasses.modelModel import Model
+from src.dataclasses.model.Model import Model
 
 
 @dataclass
