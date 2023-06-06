@@ -60,3 +60,7 @@ Please note, the "Example response" is very important.
 ### Class
 
 For class documentation, you can use normal docstring without attributes.
+
+## TODO
+
+- [ ] Don't document private methods (methods that starts with '_')

@@ -2,8 +2,8 @@ from dataclasses import dataclass
 
 
 @dataclass
-class ModelAttribute:
-    """Represent the attribute of a dataclass inside of the "models" folder
+class Attribute:
+    """Represent the attribute of a class
     """
 
     name: str | None = None

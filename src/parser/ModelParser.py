@@ -1,8 +1,8 @@
 import ast
 from typing import List, Tuple
-from src.dataclasses.model.ModelAttribute import ModelAttribute
+from src.dataclasses.ModelAttribute import ModelAttribute
 from src.parser.FileParser import FileParser
-from src.dataclasses.model.Model import Model
+from src.dataclasses.Model import Model
 from src.utils import get_short_description
 
 class ModelParser(FileParser):
