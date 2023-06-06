@@ -60,7 +60,7 @@ class ModelParser(FileParser):
                 else:
                     raise Exception(f"Unknown annotation type: {type(definition.annotation)}")
 
-                doc_lines = description.value.value.split("\n\nExample: ")
+                doc_lines = description.value.value.split("\n\n    Example: ")
                 attribute.attribute_description = doc_lines[0]
                 attribute.example = doc_lines[1]
 
