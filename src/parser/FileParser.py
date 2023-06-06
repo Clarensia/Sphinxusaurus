@@ -24,9 +24,14 @@ class FileParser(ABC):
             attribute.name = definition.target.id
             attribute.attribute_type = ast.unparse(definition.annotation)
             doc_lines = description.value.value.split("\n\n    Example:")
+            if len(doc_lines) == 1:
+                # This split is for exceptions
+                doc_lines = description.value.value.split("\n    \n    For example:")
             attribute.attribute_description = doc_lines[0]
-            attribute.example = doc_lines[1]
-            attributes.attributes.append(attribute)
+            if len(doc_lines) > 1:
+                # It is possible to have no example for an abstract Exception
+                attribute.example = doc_lines[1]
+            attributes.append(attribute)
 
     def get_attribute_nodes(self, body: List[ast.Expr | ast.AnnAssign]) -> Tuple[ast.AnnAssign, ast.Expr]:
         """Inside of the class body, there is our definition of the attribute
@@ -53,9 +58,10 @@ class FileParser(ABC):
         """
         ret = []
         for i in range(1, len(body), 2):
-            # We know that the first docstring is always the documentation of the class
-            # the attributes starts from the second one
-            ret.append((body[i], body[i + 1]))
+            if i + 1 < len(body):
+                # We know that the first docstring is always the documentation of the class
+                # the attributes starts from the second one
+                ret.append((body[i], body[i + 1]))
         return ret
 
     def get_tree(self, path: str) -> ast.Module:

@@ -12,7 +12,7 @@ class ExceptionParser(FileParser):
     def parse_file(self, file_path: str) -> ExceptionModel:
         tree = self.get_tree(file_path)
         class_nodes = [node for node in tree.body if isinstance(node, ast.ClassDef)]
-        ret = ExceptionModel
+        ret = ExceptionModel()
         for node in class_nodes:
             ret.class_definition = ast.unparse(node).split(':')[0] + ':'
             ret.is_abstract = "ABC)" in ret.class_definition
