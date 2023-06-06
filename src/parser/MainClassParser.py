@@ -3,10 +3,10 @@ from typing import Dict, List
 
 import docstring_parser
 
-from src.dataclasses.MainClass import MainClass
-from src.dataclasses.MainClassMethod import MainClassMethod
-from src.dataclasses.MethodException import MethodException
-from src.dataclasses.MethodParameter import MethodParameter
+from src.dataclasses.main_class.MainClass import MainClass
+from src.dataclasses.main_class.MainClassMethod import MainClassMethod
+from src.dataclasses.main_class.MethodException import MethodException
+from src.dataclasses.main_class.MethodParameter import MethodParameter
 
 
 class MainClassParser:

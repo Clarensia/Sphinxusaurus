@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import List
 
-from src.dataclasses.MainClassMethod import MainClassMethod
+from src.dataclasses.main_class.MainClassMethod import MainClassMethod
 
 
 @dataclass()

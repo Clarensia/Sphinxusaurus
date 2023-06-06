@@ -1,7 +1,8 @@
 from dataclasses import dataclass, field
 from typing import List
-from src.dataclasses.MethodException import MethodException
-from src.dataclasses.MethodParameter import MethodParameter
+
+from src.dataclasses.main_class.MethodException import MethodException
+from src.dataclasses.main_class.MethodParameter import MethodParameter
 
 @dataclass()
 class MainClassMethod:
