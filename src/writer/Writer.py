@@ -1,4 +1,5 @@
 import os
+import sys
 
 from src.dataclasses.Project import Project
 from src.dataclasses.main_class.MainClass import MainClass
@@ -15,7 +16,7 @@ class Writer:
     def _verify_folder(self):
         if os.path.exists(self._dest_path):
             print(f"Destination path: {self._dest_path} exists, can't run the program")
-            os.exit(1)
+            sys.exit(1)
 
     def _create_folder_in_dest(self, folder: str):
         os.mkdir(os.path.join(self._dest_path, folder))
@@ -25,7 +26,7 @@ class Writer:
         self._create_folder_in_dest("models")
         self._create_folder_in_dest("exceptions")
 
-    def _get_metadata(self, title: str, description: str, sidebar_class_name: str | None) -> str:
+    def _get_metadata(self, title: str, description: str, sidebar_class_name: str | None = None) -> str:
         """Create the metadata header for the given file
 
         :param title: The title of the file
@@ -40,7 +41,7 @@ class Writer:
         """
         ret = "---\n"
         ret += f"title: {title}\n"
-        ret += f"description: {description}"
+        ret += f"description: {description}\n"
         if sidebar_class_name is not None:
             ret += "sidebar_position: 3\n"
             ret += f"sidebar_class_name: {sidebar_class_name}\n"
@@ -122,11 +123,12 @@ asyncio.run(print_{method.name}())
         to_write += "import CodeBlock from '@theme/CodeBlock';\n\n"
         to_write += "```py\n"
         to_write += method.definition
-        to_write += "```\n\n"
+        to_write += "\n```\n\n"
         to_write += method.long_description
         to_write += "\n\n## Parameters\n\n"
-        for parameter in method.parameters:
-            to_write += f" - [{parameter.name}](#{parameter.name}): {parameter.description}\n"
+        if len(method.parameters) > 0:
+            for parameter in method.parameters:
+                to_write += f" - [{parameter.name}](#{parameter.name}): {parameter.description}\n"
         to_write += "\n## Returns\n\n"
         to_write += '<CodeBlock language="python">\n'
         if "List" in method.return_type:
@@ -153,15 +155,16 @@ asyncio.run(print_{method.name}())
             to_write += f'- [{exception.exception}](/docs/python-sdk/exceptions/{exception.exception}): {exception.description}\n'
         to_write += "\n## Parameters detailed"
         to_write += "\n"
-        for parameter in method.parameters:
-            to_write += f"### {parameter.name}\n\n"
-            to_write += parameter.description
-            to_write += "\n"
-            to_write += f'- type: `{parameter.param_type}`\n'
-            to_write += f'- example: `{parameter.example}`\n'
-            to_write += "\n"
+        if len(method.parameters) > 0:
+            for parameter in method.parameters:
+                to_write += f"### {parameter.name}\n\n"
+                to_write += parameter.description
+                to_write += "\n"
+                to_write += f'- type: `{parameter.param_type}`\n'
+                to_write += f'- example: `{parameter.example}`\n'
+                to_write += "\n"
 
-        with open(os.path.join(folder_name, f"{method.name.replace('_', '-')}.mdx"), "w+") as f:
+        with open(os.path.join(self._dest_path, folder_name, f"{method.name.replace('_', '-')}.mdx"), "w+") as f:
             f.write(to_write)
 
     def _write_main_class(self, main_class: MainClass):
