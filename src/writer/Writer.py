@@ -57,6 +57,39 @@ class Writer:
         with open(os.path.join(self._dest_path, folder_name, f"{folder_name}.md"), "w+") as f:
             f.write(to_write)
 
+    def _get_usage(self, method: MainClassMethod) -> str:
+        """Get the usage of a method. Example return value:
+
+        ```py
+        import asyncio
+
+        from blockchainapis import BlockchainAPIs
+
+        async def print_amount_out():
+            # Create the BlockchainAPIs instance
+            # You can additionaly add an API key if needed
+            blockchain_apis = BlockchainAPIs()
+            # Get the amount of tokenOut that you will get after selling amountIn tokenIn
+            amount_out = await blockchain_apis.amount_out(
+                blockchain="ethereum", # The id of the blockchain on which this exchange take place
+                tokenIn="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", # The address of the token that you sell
+                tokenOut="0xdAC17F958D2ee523a2206206994597C13D831ec7", # The address of the token that you buy
+                amountIn=1000000000000000000, # The amount of token0 that you sell
+                exchange="uniswapv2" # The exchange on which you want to do the trade (optional)
+            )
+            print(amount_out)
+            # We need to close our instance once we are done with BlockchainAPIs
+            await blockchain_apis.close()
+
+        asyncio.run(print_amount_out())
+        ```
+
+        :param method: The method that we have to use
+        :type method: MainClassMethod
+        :return: The usage string
+        :rtype: str
+        """
+
     def _write_method(self, folder_name: str, method: MainClassMethod):
         to_write = self._get_metadata(method.name, method.short_description)
         to_write += "\n"
@@ -79,7 +112,29 @@ class Writer:
             to_write += f'    <a href="/docs/python-sdk/models/{method.return_type}">{method.return_type}</a>'
             to_write += "\n"
 
-        to_write += '</CodeBlock>'
+        to_write += '</CodeBlock>\n\n'
+
+        to_write += method.return_description
+        to_write += "\n\n"
+        to_write += "## Example\n\n"
+        to_write += "### Usage\n\n"
+        to_write += self._get_usage(method)
+        ret += "\n"
+        ret += "### Example response\n\n"
+        ret += method.example_response
+        ret += "\n## Exceptions\n\n"
+        for exception in method.exceptions:
+            ret += f'- [{exception.exception}](/docs/python-sdk/exceptions/{exception.exception}): {exception.description}\n'
+        ret += "\n## Parameters detailed"
+        ret += "\n"
+        for parameter in method.parameters:
+            ret += f"### {parameter.name}\n\n"
+            ret += parameter.description
+            ret += "\n"
+            ret += f'- type: `{parameter.param_type}`\n'
+            ret += f'- example: `{parameter.example}`\n'
+            ret += "\n"
+
         with open(os.path.join(folder_name, f"{method.name.replace('_', '-')}.mdx"), "w+") as f:
             f.write(to_write)
 
