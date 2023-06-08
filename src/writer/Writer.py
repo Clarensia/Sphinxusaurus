@@ -102,12 +102,15 @@ async def print_{method.name}():
     {instance_name} = {main_class_name}()
     # {method.short_description}
     {method.name} = await {instance_name}.{method.name}('''
-        for param in method.parameters:
-            example = f'"{param.example}"' if param.param_type == "str" else param.example
-            ret += f"        {param.name}={example}\n"
+        if len(method.parameters) > 0:
+            for param in method.parameters:
+                example = f'"{param.example}"' if param.param_type == "str" else param.example
+                ret += f"        {param.name}={example}\n"
 
-        ret += f'''    )
-    print({method.name})
+            ret += f'    )'
+        else:
+            ret += ")"
+        ret += f'''    print({method.name})
     # We need to close our instance once we are done with BlockchainAPIs
     await {main_class_name}.close()
 
@@ -123,10 +126,10 @@ asyncio.run(print_{method.name}())
         to_write += "import CodeBlock from '@theme/CodeBlock';\n\n"
         to_write += "```py\n"
         to_write += method.definition
-        to_write += "\n```\n\n"
+        to_write += "\n```\n"
         to_write += method.long_description
-        to_write += "\n\n## Parameters\n\n"
         if len(method.parameters) > 0:
+            to_write += "\n\n## Parameters\n\n"
             for parameter in method.parameters:
                 to_write += f" - [{parameter.name}](#{parameter.name}): {parameter.description}\n"
         to_write += "\n## Returns\n\n"
@@ -153,9 +156,9 @@ asyncio.run(print_{method.name}())
         to_write += "\n## Exceptions\n\n"
         for exception in method.exceptions:
             to_write += f'- [{exception.exception}](/docs/python-sdk/exceptions/{exception.exception}): {exception.description}\n'
-        to_write += "\n## Parameters detailed"
-        to_write += "\n"
         if len(method.parameters) > 0:
+            to_write += "\n## Parameters detailed"
+            to_write += "\n"
             for parameter in method.parameters:
                 to_write += f"### {parameter.name}\n\n"
                 to_write += parameter.description
