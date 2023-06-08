@@ -42,6 +42,7 @@ class MainClassParser(FileParser):
         :rtype: MainClassMethod
         """
         ret = MainClassMethod()
+        ret.name = node.name
         ret.definition = ast.unparse(node).split(':')[0] + ':'
         func_dostring = ast.get_docstring(node)
         if func_dostring:

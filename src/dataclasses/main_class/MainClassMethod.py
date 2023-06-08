@@ -11,6 +11,12 @@ class MainClassMethod:
     These methods are the one that interact with our API
     """
 
+    name: str | None = None
+    """The name of the method
+    
+    For example: amount_out
+    """
+
     definition: str = None
     """The definition of the method
     

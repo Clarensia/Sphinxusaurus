@@ -25,3 +25,5 @@ def create_folder_name(camel_case_class: str) -> str:
     """
     s = re.sub('(.)([A-Z][a-z]+)', r'\1-\2', s)
     return re.sub('([a-z0-9])([A-Z])', r'\1-\2', s).lower()
+
+def 
