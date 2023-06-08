@@ -116,7 +116,7 @@ asyncio.run(print_{method.name}())
 
         return ret
 
-    def _write_method(self, folder_name: str, method: MainClassMethod):
+    def _write_method(self, folder_name: str, method: MainClassMethod, main_class_name: str):
         to_write = self._get_metadata(method.name, method.short_description)
         to_write += "\n"
         to_write += "import CodeBlock from '@theme/CodeBlock';\n\n"
@@ -144,7 +144,7 @@ asyncio.run(print_{method.name}())
         to_write += "\n\n"
         to_write += "## Example\n\n"
         to_write += "### Usage\n\n"
-        to_write += self._get_usage(method)
+        to_write += self._get_usage(method, main_class_name)
         to_write += "\n"
         to_write += "### Example response\n\n"
         to_write += method.example_response
@@ -167,15 +167,14 @@ asyncio.run(print_{method.name}())
     def _write_main_class(self, main_class: MainClass):
         folder_name = create_folder_name(main_class.name)
         self._create_folder_in_dest(folder_name)
-        self._create_module_main_file(self,
-                                      folder_name,
+        self._create_module_main_file(folder_name,
                                       main_class.name,
                                       main_class.short_description,
                                       main_class.long_description)
         for method in main_class.methods:
-            self._write_method(folder_name, method)
+            self._write_method(folder_name, method, main_class.name)
 
     def write(self, project: Project):
-        self._create_dest_folders()
+        self._create_dest_folder()
         for main_class in project.main_classes:
             self._write_main_class(main_class)
