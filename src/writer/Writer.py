@@ -146,7 +146,6 @@ asyncio.run(print_{method.name}())
         to_write += '</CodeBlock>\n\n'
 
         to_write += method.return_description
-        to_write += "\n\n"
         to_write += "## Example\n\n"
         to_write += "### Usage\n\n"
         to_write += self._get_usage(method, main_class_name)
