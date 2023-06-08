@@ -57,7 +57,7 @@ class Writer:
         with open(os.path.join(self._dest_path, folder_name, f"{folder_name}.md"), "w+") as f:
             f.write(to_write)
 
-    def _get_usage(self, method: MainClassMethod) -> str:
+    def _get_usage(self, method: MainClassMethod, main_class_name: str) -> str:
         """Get the usage of a method. Example return value:
 
         ```py
@@ -89,6 +89,32 @@ class Writer:
         :return: The usage string
         :rtype: str
         """
+        instance_name = create_folder_name(main_class_name).replace("-", "_")
+        ret = f'''```py
+import asyncio
+
+from {main_class_name} import {main_class_name}
+
+async def print_{method.name}():
+    # Create the {main_class_name} instance
+    # You can additionaly add an API key if you want
+    {instance_name} = {main_class_name}()
+    # {method.short_description}
+    {method.name} = await {instance_name}.{method.name}('''
+        for param in method.parameters:
+            example = f'"{param.example}"' if param.param_type == "str" else param.example
+            ret += f"        {param.name}={example}\n"
+
+        ret += f'''    )
+    print({method.name})
+    # We need to close our instance once we are done with BlockchainAPIs
+    await {main_class_name}.close()
+
+asyncio.run(print_{method.name}())
+```
+'''
+
+        return ret
 
     def _write_method(self, folder_name: str, method: MainClassMethod):
         to_write = self._get_metadata(method.name, method.short_description)
