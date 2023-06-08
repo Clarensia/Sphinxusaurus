@@ -3,3 +3,4 @@ secret_*
 venv
 .venv
 __pycache__
+dest/
