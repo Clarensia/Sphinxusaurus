@@ -119,21 +119,21 @@ class Writer:
         to_write += "## Example\n\n"
         to_write += "### Usage\n\n"
         to_write += self._get_usage(method)
-        ret += "\n"
-        ret += "### Example response\n\n"
-        ret += method.example_response
-        ret += "\n## Exceptions\n\n"
+        to_write += "\n"
+        to_write += "### Example response\n\n"
+        to_write += method.example_response
+        to_write += "\n## Exceptions\n\n"
         for exception in method.exceptions:
-            ret += f'- [{exception.exception}](/docs/python-sdk/exceptions/{exception.exception}): {exception.description}\n'
-        ret += "\n## Parameters detailed"
-        ret += "\n"
+            to_write += f'- [{exception.exception}](/docs/python-sdk/exceptions/{exception.exception}): {exception.description}\n'
+        to_write += "\n## Parameters detailed"
+        to_write += "\n"
         for parameter in method.parameters:
-            ret += f"### {parameter.name}\n\n"
-            ret += parameter.description
-            ret += "\n"
-            ret += f'- type: `{parameter.param_type}`\n'
-            ret += f'- example: `{parameter.example}`\n'
-            ret += "\n"
+            to_write += f"### {parameter.name}\n\n"
+            to_write += parameter.description
+            to_write += "\n"
+            to_write += f'- type: `{parameter.param_type}`\n'
+            to_write += f'- example: `{parameter.example}`\n'
+            to_write += "\n"
 
         with open(os.path.join(folder_name, f"{method.name.replace('_', '-')}.mdx"), "w+") as f:
             f.write(to_write)
