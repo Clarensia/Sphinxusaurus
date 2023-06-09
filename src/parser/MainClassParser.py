@@ -66,8 +66,10 @@ class MainClassParser(FileParser):
                 )
             ret_with_example = docstring_obj.meta[-1].description.split('Example response:')
             ret.return_description = ret_with_example[0]
-            ret.example_response = ret_with_example[1]
-            ret.return_type = docstring_obj.returns.type_name
+            if len(ret_with_example) >= 2:
+                ret.example_response = ret_with_example[1]
+            if docstring_obj.returns is not None:
+                ret.return_type = docstring_obj.returns.type_name
             for exception in docstring_obj.raises:
                 ret.exceptions.append(
                     MethodException(
