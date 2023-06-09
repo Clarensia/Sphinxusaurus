@@ -158,17 +158,17 @@ asyncio.run(print_{method.name}())
         else:
             to_write += "\n"
 
-        to_write += "## Example\n\n"
-        to_write += "### Usage\n\n"
-        to_write += self._get_usage(method, main_class_name)
-        to_write += "\n"
         if method.example_response is not None:
+            to_write += "## Example\n\n"
+            to_write += "### Usage\n\n"
+            to_write += self._get_usage(method, main_class_name)
+            to_write += "\n"
             to_write += "### Example response\n\n"
             to_write += method.example_response
-        if len(method.exceptions) > 0:
-            to_write += "\n## Exceptions\n\n"
-            for exception in method.exceptions:
-                to_write += f'- [{exception.exception}](/docs/python-sdk/exceptions/{exception.exception}): {exception.description}\n'
+            if len(method.exceptions) > 0:
+                to_write += "\n## Exceptions\n\n"
+                for exception in method.exceptions:
+                    to_write += f'- [{exception.exception}](/docs/python-sdk/exceptions/{exception.exception}): {exception.description}\n'
         if len(method.parameters) > 0:
             to_write += "\n## Parameters detailed"
             to_write += "\n"
