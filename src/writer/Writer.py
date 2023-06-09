@@ -200,9 +200,9 @@ asyncio.run(print_{method.name}())
                 ret += self._write_object(attribute.attribute_type)
                 ret += "\n"
                 ret += "#### Example\n\n"
-                ret += "```json\n"
+                ret += "```json"
                 ret += attribute.example
-                ret += "\n```\n\n"
+                ret += "```\n\n"
             else:
                 ret += f'- type: `{attribute.attribute_type}`\n'
                 ret += f'- example: `{attribute.example}`\n\n'
