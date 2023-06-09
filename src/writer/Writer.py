@@ -1,5 +1,7 @@
 import os
 import sys
+from typing import List
+from src.dataclasses.Attribute import Attribute
 from src.dataclasses.ExceptionModel import ExceptionModel
 from src.dataclasses.Model import Model
 
@@ -183,6 +185,17 @@ asyncio.run(print_{method.name}())
         for method in main_class.methods:
             self._write_method(folder_name, method, main_class.name)
 
+    def _add_attributes(self, attributes: List[Attribute]) -> str:
+        ret = ""
+        for attribute in attributes:
+            ret += f"### {attribute.name}\n\n"
+            ret += attribute.attribute_description
+            ret += "\n"
+            ret += f'- type: `{attribute.attribute_type}`\n'
+            ret += f'- example: `{attribute.example}`\n\n'
+
+        return ret
+
     def _write_model(self, model: Model):
         file_name = create_folder_name(model.name)
         to_write = self._get_metadata(model.name, model.short_description)
@@ -196,18 +209,25 @@ asyncio.run(print_{method.name}())
         to_write += "```\n\n"
         to_write += model.long_description
         to_write += "\n## Attributes\n\n"
-        for attribute in model.attributes:
-            to_write += f"### {attribute.name}\n\n"
-            to_write += attribute.attribute_description
-            to_write += "\n"
-            to_write += f'- type: `{attribute.attribute_type}`\n'
-            to_write += f'- example: `{attribute.example}`\n\n'
+        to_write += self._add_attributes(model.attributes)
 
         with open(os.path.join(self._dest_path, "models", file_name + ".md"), "w+") as f:
             f.write(to_write)
 
     def _write_exception(self, exception: ExceptionModel):
-        pass
+        file_name = create_folder_name(exception.name)
+        to_write = self._get_metadata(exception.name, exception.short_description)
+        to_write += "\n"
+        to_write += "```py\n"
+        to_write += exception.definition
+        to_write += "\n```\n\n"
+        to_write += exception.long_description
+        to_write += "\n"
+        to_write += "## Params\n\n"
+        to_write += self._add_attributes(exception.attributes)
+
+        with open(os.path.join(self._dest_path, "exceptions", file_name + ".md"), "w+") as f:
+            f.write(to_write)
 
     def write(self, project: Project):
         self._create_dest_folder()
@@ -218,4 +238,4 @@ asyncio.run(print_{method.name}())
             self._write_model(model)
 
         for exception in project.exceptions:
-            pass
+            self._write_exception(exception)

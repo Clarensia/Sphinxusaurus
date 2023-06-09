@@ -14,6 +14,7 @@ class ExceptionParser(FileParser):
         class_nodes = [node for node in tree.body if isinstance(node, ast.ClassDef)]
         ret = ExceptionModel()
         for node in class_nodes:
+            ret.name = node.name
             ret.class_definition = ast.unparse(node).split(':')[0] + ':'
             ret.is_abstract = "ABC)" in ret.class_definition
             exception_docstring = ast.get_docstring(node)

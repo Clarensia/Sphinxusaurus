@@ -9,6 +9,12 @@ class ExceptionModel:
     """The model that describe an expression
     """
 
+    name: str | None = None
+    """The name of the Exception
+    
+    For example: BLockchainNotSupportedException
+    """
+
     definition: str | None = None
     """The definition of the Exception class.
     
