@@ -151,16 +151,20 @@ asyncio.run(print_{method.name}())
             to_write += "\n\n## Parameters\n\n"
             for parameter in method.parameters:
                 to_write += f" - [{parameter.name}](#{parameter.name}): {parameter.description}\n"
-        to_write += "\n## Returns\n\n"
-        to_write += self._write_object(method.return_type)
+        if method.return_type is not None:
+            to_write += "\n## Returns\n\n"
+            to_write += self._write_object(method.return_type)
+            to_write += method.return_description
+        else:
+            to_write += "\n"
 
-        to_write += method.return_description
         to_write += "## Example\n\n"
         to_write += "### Usage\n\n"
         to_write += self._get_usage(method, main_class_name)
         to_write += "\n"
-        to_write += "### Example response\n\n"
-        to_write += method.example_response
+        if method.example_response is not None:
+            to_write += "### Example response\n\n"
+            to_write += method.example_response
         if len(method.exceptions) > 0:
             to_write += "\n## Exceptions\n\n"
             for exception in method.exceptions:
