@@ -180,7 +180,11 @@ asyncio.run(print_{method.name}())
                 to_write += f'- example: `{parameter.example}`\n'
                 to_write += "\n"
 
-        with open(os.path.join(self._dest_path, folder_name, f"{method.name.replace('_', '-')}.mdx"), "w+") as f:
+        if method.name == "__init__":
+            filename = "__init__"
+        else:
+            filename = method.name.replace('_', '-')
+        with open(os.path.join(self._dest_path, folder_name, f"{filename}.mdx"), "w+") as f:
             f.write(to_write)
 
     def _write_main_class(self, main_class: MainClass):

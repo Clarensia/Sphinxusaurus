@@ -23,5 +23,4 @@ def create_folder_name(camel_case_class: str) -> str:
     :return: The name of the class in lowercase with hyphen separation: camel-case
     :rtype: str
     """
-    s = re.sub('(.)([A-Z][a-z]+)', r'\1-\2', camel_case_class)
     return re.sub('([a-z0-9])([A-Z])', r'\1-\2', camel_case_class).lower()
