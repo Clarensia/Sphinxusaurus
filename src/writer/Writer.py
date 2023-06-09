@@ -1,5 +1,6 @@
 import os
 import sys
+from src.dataclasses.Model import Model
 
 from src.dataclasses.Project import Project
 from src.dataclasses.main_class.MainClass import MainClass
@@ -181,7 +182,36 @@ asyncio.run(print_{method.name}())
         for method in main_class.methods:
             self._write_method(folder_name, method, main_class.name)
 
+    def _write_model(self, model: Model):
+        file_name = create_folder_name(model.name)
+        to_write = self._get_metadata(model.name, model.short_description)
+        to_write += "\n"
+        to_write += "```py\n"
+        to_write = "@dataclass(slots=True, frozen=True)\n"
+        to_write += model.class_definition
+        to_write += "\n"
+        for attribute in model.attributes:
+            to_write += f"    {attribute.name}: {attribute.attribute_type}\n"
+        to_write += "```\n\n"
+        to_write += model.long_description
+        to_write += "\n## Attributes\n\n"
+        for attribute in model.attributes:
+            to_write += f"### {attribute.name}\n\n"
+            to_write += attribute.attribute_description
+            to_write += "\n"
+            to_write += f'- type: `{attribute.attribute_type}`\n'
+            to_write += f'- example: `{attribute.example}`\n\n'
+
+        with open(os.path.join(self._dest_path, "models", file_name + ".md"), "w+") as f:
+            f.write(to_write)
+
     def write(self, project: Project):
         self._create_dest_folder()
         for main_class in project.main_classes:
             self._write_main_class(main_class)
+
+        for model in project.models:
+            self._write_model(model)
+
+        for exception in project.exceptions:
+            pass

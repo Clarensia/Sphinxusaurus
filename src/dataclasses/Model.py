@@ -6,6 +6,12 @@ from src.dataclasses.Attribute import Attribute
 
 @dataclass
 class Model:
+    name: str | None = None
+    """The name of the model
+    
+    For example: AmountIn
+    """
+
     class_definition: str | None = None
     """The defintion of the class.
     
