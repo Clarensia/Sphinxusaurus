@@ -43,7 +43,7 @@ class MainClassParser(FileParser):
         """
         ret = MainClassMethod()
         ret.name = node.name
-        ret.definition = ast.unparse(node).split(':')[0] + ':'
+        ret.definition = ast.unparse(node).split('\n', 1)[0]
         func_dostring = ast.get_docstring(node)
         if func_dostring:
             docstring_obj = docstring_parser.parse(func_dostring)
