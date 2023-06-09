@@ -15,8 +15,8 @@ class ExceptionParser(FileParser):
         ret = ExceptionModel()
         for node in class_nodes:
             ret.name = node.name
-            ret.class_definition = ast.unparse(node).split(':')[0] + ':'
-            ret.is_abstract = "ABC)" in ret.class_definition
+            ret.definition = ast.unparse(node).split(':')[0] + ':'
+            ret.is_abstract = "ABC)" in ret.definition
             exception_docstring = ast.get_docstring(node)
             if exception_docstring:
                 ret.short_description = get_short_description(exception_docstring)
