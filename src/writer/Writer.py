@@ -181,7 +181,7 @@ asyncio.run(print_{method.name}())
                 to_write += "\n"
 
         if method.name == "__init__":
-            filename = "__init__"
+            filename = "init"
         else:
             filename = method.name.replace('_', '-')
         with open(os.path.join(self._dest_path, folder_name, f"{filename}.mdx"), "w+") as f:
