@@ -100,6 +100,8 @@ class MainClassParser(FileParser):
                     ret.short_description = docstring_lines[0]
                 for sub_node in node.body:
                     if isinstance(sub_node, ast.AsyncFunctionDef) or isinstance(sub_node, ast.FunctionDef):
-                        ret.methods.append(self._parse_function(sub_node))
+                        # Remove private functions but keeps __init__
+                        if not sub_node.name.startswith("_") or sub_node.name.startswith("__"):
+                            ret.methods.append(self._parse_function(sub_node))
 
         return ret
