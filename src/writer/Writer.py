@@ -107,9 +107,9 @@ async def print_{method.name}():
                 example = f'"{param.example}"' if param.param_type == "str" else param.example
                 ret += f"        {param.name}={example}\n"
 
-            ret += f'    )'
+            ret += f'    )\n'
         else:
-            ret += ")"
+            ret += ")\n"
         ret += f'''    print({method.name})
     # We need to close our instance once we are done with BlockchainAPIs
     await {main_class_name}.close()
@@ -136,7 +136,7 @@ asyncio.run(print_{method.name}())
         to_write += '<CodeBlock language="python">\n'
         if "List" in method.return_type:
             list_object = method.return_type.replace("List[", "")
-            list_object = method.return_type.replace("]", "")
+            list_object = list_object.replace("]", "")
             link_to_return_type = f'<a href="/docs/python-sdk/models/{list_object}">{list_object}</a>'
             to_write += f'    List[{link_to_return_type}]\n'
         else:
@@ -152,9 +152,10 @@ asyncio.run(print_{method.name}())
         to_write += "\n"
         to_write += "### Example response\n\n"
         to_write += method.example_response
-        to_write += "\n## Exceptions\n\n"
-        for exception in method.exceptions:
-            to_write += f'- [{exception.exception}](/docs/python-sdk/exceptions/{exception.exception}): {exception.description}\n'
+        if len(method.exceptions) > 0:
+            to_write += "\n## Exceptions\n\n"
+            for exception in method.exceptions:
+                to_write += f'- [{exception.exception}](/docs/python-sdk/exceptions/{exception.exception}): {exception.description}\n'
         if len(method.parameters) > 0:
             to_write += "\n## Parameters detailed"
             to_write += "\n"
