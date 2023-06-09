@@ -201,7 +201,7 @@ asyncio.run(print_{method.name}())
         to_write = self._get_metadata(model.name, model.short_description)
         to_write += "\n"
         to_write += "```py\n"
-        to_write = "@dataclass(slots=True, frozen=True)\n"
+        to_write += "@dataclass(slots=True, frozen=True)\n"
         to_write += model.class_definition
         to_write += "\n"
         for attribute in model.attributes:
@@ -222,7 +222,7 @@ asyncio.run(print_{method.name}())
         to_write += exception.definition
         to_write += "\n```\n\n"
         to_write += exception.long_description
-        to_write += "\n"
+        to_write += "\n\n"
         to_write += "## Params\n\n"
         to_write += self._add_attributes(exception.attributes)
 
