@@ -135,6 +135,8 @@ asyncio.run(print_{method.name}())
         else:
             to_write += f'    <a href="/docs/python-sdk/models/{object_to_write}">{object_to_write}</a>'
             to_write += "\n"
+        
+        to_write += '</CodeBlock>\n\n'
         return to_write
 
     def _write_method(self, folder_name: str, method: MainClassMethod, main_class_name: str):
@@ -150,9 +152,7 @@ asyncio.run(print_{method.name}())
             for parameter in method.parameters:
                 to_write += f" - [{parameter.name}](#{parameter.name}): {parameter.description}\n"
         to_write += "\n## Returns\n\n"
-        to_write += self._write_object(method.return_tye)
-
-        to_write += '</CodeBlock>\n\n'
+        to_write += self._write_object(method.return_type)
 
         to_write += method.return_description
         to_write += "## Example\n\n"
@@ -195,7 +195,7 @@ asyncio.run(print_{method.name}())
             ret += f"### {attribute.name}\n\n"
             ret += attribute.attribute_description
             ret += "\n"
-            if "List" in attribute.example:
+            if "List" in attribute.attribute_type:
                 ret += "#### Type\n\n"
                 ret += self._write_object(attribute.attribute_type)
                 ret += "\n"
