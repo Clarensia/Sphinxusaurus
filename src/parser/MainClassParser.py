@@ -64,10 +64,12 @@ class MainClassParser(FileParser):
                         # TODO: Allow us to know if it is an optional or mandatory parameter
                     )
                 )
-            ret_with_example = docstring_obj.meta[-1].description.split('Example response:')
-            ret.return_description = ret_with_example[0]
-            if len(ret_with_example) >= 2:
-                ret.example_response = ret_with_example[1]
+            # The close function may not have meta
+            if len(docstring_obj.meta) > 0:
+                ret_with_example = docstring_obj.meta[-1].description.split('Example response:')
+                ret.return_description = ret_with_example[0]
+                if len(ret_with_example) >= 2:
+                    ret.example_response = ret_with_example[1]
             if docstring_obj.returns is not None:
                 ret.return_type = docstring_obj.returns.type_name
             for exception in docstring_obj.raises:
@@ -100,9 +102,8 @@ class MainClassParser(FileParser):
                     ret.short_description = docstring_lines[0]
                 for sub_node in node.body:
                     if isinstance(sub_node, ast.AsyncFunctionDef) or isinstance(sub_node, ast.FunctionDef):
-                        # Remove private functions
-                        if not sub_node.name.startswith("_"):
+                        # Remove private functions but keeps __init__
+                        if not sub_node.name.startswith("_") or sub_node.name.startswith("__"):
                             ret.methods.append(self._parse_function(sub_node))
-                        # TODO: add __init__
 
         return ret
