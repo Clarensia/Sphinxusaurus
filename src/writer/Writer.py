@@ -103,6 +103,7 @@ async def print_{method.name}():
     # {method.short_description}
     {method.name} = await {instance_name}.{method.name}('''
         if len(method.parameters) > 0:
+            ret += "\n"
             for param in method.parameters:
                 example = f'"{param.example}"' if param.param_type == "str" else param.example
                 ret += f"        {param.name}={example}\n"
