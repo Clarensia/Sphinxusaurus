@@ -1,6 +1,7 @@
-from typing import Any, Dict, List
+import requests
 
-from aiohttp import ClientSession
+from typing import Any, Dict, List
+from urllib.parse import urljoin
 
 from .models import Blockchain
 from .models import Exchanges
@@ -22,10 +23,9 @@ from .exceptions import TooManyRequestsException
 from .exceptions import UnauthorizedException
 
 
-class BlockchainAPIs:
+class BlockchainAPIsSync:
     """High-frequency DEX API
 
-        
     Our API empowers you to access live financial data across multiple blockchains (currently supporting 6, with more on the way)
     with unparalleled speed and efficiency.
     
@@ -39,21 +39,14 @@ class BlockchainAPIs:
     Ready to try it out? [Sign up for a free API key here](https://dashboard.blockchainapis.io) or start exploring the possibilities
     on this page. Need support or have questions? Join our [Discord community](https://discord.gg/GphRMJXmS5) where our team and
     fellow developers are eager to help you make the most of our powerful API.
-    """
 
-    _session: ClientSession
-    """The session that is used by async operation.
-    
-    This session must be closed at the end of your program or usage of the API.
-    
-    It can be closed with:
-    await blockchain_apis_instance.close()
-    
-    (replace blockchain_apis_instance with your instance of BlockchainAPIs)
+    Please note that this class is using sync which is less optimized. To run more otpimized requests and take advantage of
+    modern async Python, please use: BlockchainAPIs
     """
     
     def __init__(self, api_key: str | None = None):
-        """Creates a BlockchainAPIs async instance that allow you to make API calls.
+        """Creates a BlockchainAPIsSync sync instance that allow you to make API calls
+        in a synchronous way.
 
         The client works without an API key, but for better performance, we advise you
         to get one at: https://dashboard.blockchainapis.io
@@ -61,59 +54,53 @@ class BlockchainAPIs:
         :param api_key: Your API key, defaults to None
         :type api_key: str | None, optional
         """
-        self._api_key = api_key
         self._headers = {
             "accept": "application/json"
         }
         if api_key is not None:
             self._headers["api-key"] = api_key
-        self._session = ClientSession("https://api.blockchainapis.io")
+        self._base_url = "https://api.blockchainapis.io"
 
-    async def close(self):
-        """Close the async session object.
+
+    def _do_request(self, path: str, params: Dict[str, Any] | None = None) -> Dict[str, Any]:
+        """Make a raw API request (that return the json result).
         
-        You must call this method at the end of your program or when you have finished
-        working with BlockchainAPIs.
-        """
-        await self._session.close()
+        It makes the request in a synchronous way and you don't need to close the
+        BlockchainAPIs instance.
 
-    async def _do_request(self, path: str, params: Dict[str, Any] | None = None) -> Dict[str, Any]:
-        """Make raw API request (that return the json result).
-        
-        This method additionaly adds the user API key to the request if it is present.
-
-        :param path: The path to the request
+        :param path: The path of the request
         :type path: str
         :param params: The optional query parameters of the request, defaults to None
         :type params: Dict[str, Any] | None, optional
         :return: The json-formated result
-        :rtype: Dict[str, None]
+        :rtype: Dict[str, Any]
         """
-        async with self._session.get(path, params=params, headers=self._headers) as response:
-            if response.status != 200:
-                error_data = await response.json()
-                error_type = error_data["detail"]["error_type"]
-                match error_type:
-                    case "BlockchainNotSupportedException":
-                        raise BlockchainNotSupportedException(response.status, error_data["detail"]["detail"])
-                    case "ExchangeNotSupportedException":
-                        raise ExchangeNotSupportedException(response.status, error_data["detail"]["detail"])
-                    case "InvalidPageException":
-                        raise InvalidPageException(response.status, error_data["detail"]["detail"])
-                    case "TokenNotFoundException":
-                        raise TokenNotFoundException(response.status, error_data["detail"]["detail"])
-                    case "PairNotFoundException":
-                        raise PairNotFoundException(response.status, error_data["detail"]["detail"])
-                    case "TooManyRequestException":
-                        raise TooManyRequestsException(response.status, error_data["detail"]["detail"])
-                    case "UnauthorizedException":
-                        raise UnauthorizedException(response.status, error_data["detail"]["detail"])
-                    case unknown:
-                        raise Exception(f"Unkwnown Exception type: {unknown}.\nGot this exception while handling:\n{error_data} with status code: {response.status}")
+        url = urljoin(self._base_url, path)
+        response = requests.get(url, params=params, headers=self._headers)
+        if response.status_code != 200:
+            error_data = response.json()
+            error_type = error_data["detail"]["error_type"]
+            match error_type:
+                case "BlockchainNotSupportedException":
+                    raise BlockchainNotSupportedException(response.status, error_data["detail"]["detail"])
+                case "ExchangeNotSupportedException":
+                    raise ExchangeNotSupportedException(response.status, error_data["detail"]["detail"])
+                case "InvalidPageException":
+                    raise InvalidPageException(response.status, error_data["detail"]["detail"])
+                case "TokenNotFoundException":
+                    raise TokenNotFoundException(response.status, error_data["detail"]["detail"])
+                case "PairNotFoundException":
+                    raise PairNotFoundException(response.status, error_data["detail"]["detail"])
+                case "TooManyRequestException":
+                    raise TooManyRequestsException(response.status, error_data["detail"]["detail"])
+                case "UnauthorizedException":
+                    raise UnauthorizedException(response.status, error_data["detail"]["detail"])
+                case unknown:
+                    raise Exception(f"Unkwnown Exception type: {unknown}.\nGot this exception while handling:\n{error_data} with status code: {response.status}")
 
-            return await response.json()
+        return response.json()
 
-    async def blockchains(self) -> List[Blockchain]:
+    def blockchains(self) -> List[Blockchain]:
         """Get the list of blockchains supported by the API
 
 
@@ -137,7 +124,7 @@ class BlockchainAPIs:
         ```
         :rtype: List[Blockchain]
         """
-        ret = await self._do_request("/v0/blockchains/")
+        ret = self._do_request("/v0/blockchains/")
         return [
             Blockchain(
                 blockchain=r["blockchain"],
@@ -149,7 +136,7 @@ class BlockchainAPIs:
         ]
 
 
-    async def exchanges(self, page: int = 1, blockchain: str | None = None) -> Exchanges:
+    def exchanges(self, page: int = 1, blockchain: str | None = None) -> Exchanges:
         """Get the list of supported exchanges by the API
 
         @raises BlockchainNotSupportedException: When an invalid blockchain id is given
@@ -194,7 +181,7 @@ class BlockchainAPIs:
         params["page"] = page
         if blockchain is not None:
             params["blockchain"] = blockchain
-        ret = await self._do_request("/v0/exchanges/", params)
+        ret = self._do_request("/v0/exchanges/", params)
         return Exchanges(
             page=ret["page"],
             total_pages=ret["total_pages"],
@@ -210,7 +197,7 @@ class BlockchainAPIs:
         )
 
 
-    async def info(self, exchange: str) -> Exchange:
+    def info(self, exchange: str) -> Exchange:
         """Get informations on a specific exchange
 
         @raises ExchangeNotSupportedException: Thrown when an invalid exchange id is given
@@ -241,7 +228,7 @@ class BlockchainAPIs:
         """
         params = {}
         params["exchange"] = exchange
-        ret = await self._do_request("/v0/exchanges/info", params)
+        ret = self._do_request("/v0/exchanges/info", params)
         return Exchange(
             exchange=ret["exchange"],
             blockchain=ret["blockchain"],
@@ -250,7 +237,7 @@ class BlockchainAPIs:
         )
 
 
-    async def pairs(self, page: int = 1, blockchain: str | None = None, exchange: str | None = None) -> Pairs:
+    def pairs(self, page: int = 1, blockchain: str | None = None, exchange: str | None = None) -> Pairs:
         """Get the list of pairs supported by the API
 
         @raises BlockchainNotSupportedException: When an invalid blockchain id is given
@@ -301,7 +288,7 @@ class BlockchainAPIs:
             params["blockchain"] = blockchain
         if exchange is not None:
             params["exchange"] = exchange
-        ret = await self._do_request("/v0/exchanges/pairs", params)
+        ret = self._do_request("/v0/exchanges/pairs", params)
         return Pairs(
             page=ret["page"],
             total_pages=ret["total_pages"],
@@ -318,7 +305,7 @@ class BlockchainAPIs:
         )
 
 
-    async def reserves(self, blockchain: str, token0: str, token1: str, exchange: str | None = None) -> List[Reserve]:
+    def reserves(self, blockchain: str, token0: str, token1: str, exchange: str | None = None) -> List[Reserve]:
         """Get the liquidity inside of the reserve of two tokens.
 
         @raises BlockchainNotSupportedException: When an invalid blockchain id is given
@@ -359,7 +346,7 @@ class BlockchainAPIs:
             params["exchange"] = exchange
         params["token0"] = token0
         params["token1"] = token1
-        ret = await self._do_request("/v0/exchanges/pairs/reserves", params)
+        ret = self._do_request("/v0/exchanges/pairs/reserves", params)
         return [
             Reserve(
                 blockchain=r["blockchain"],
@@ -373,7 +360,7 @@ class BlockchainAPIs:
         ]
 
 
-    async def amount_out(self, blockchain: str, tokenIn: str, tokenOut: str, amountIn: int, exchange: str | None = None) -> List[AmountOut]:
+    def amount_out(self, blockchain: str, tokenIn: str, tokenOut: str, amountIn: int, exchange: str | None = None) -> List[AmountOut]:
         """Get the amount of token1 that you will get after selling amountIn token0
 
         @raises BlockchainNotSupportedException: When an invalid blockchain id is given
@@ -416,7 +403,7 @@ class BlockchainAPIs:
         params["amountIn"] = amountIn
         if exchange is not None:
             params["exchange"] = exchange
-        ret = await self._do_request("/v0/exchanges/pairs/amountOut", params)
+        ret = self._do_request("/v0/exchanges/pairs/amountOut", params)
         return [
             AmountOut(
                 blockchain=r["blockchain"],
@@ -430,7 +417,7 @@ class BlockchainAPIs:
         ]
 
 
-    async def amount_in(self, blockchain: str, tokenIn: str, tokenOut: str, amountOut: int, exchange: str | None = None) -> List[AmountIn]:
+    def amount_in(self, blockchain: str, tokenIn: str, tokenOut: str, amountOut: int, exchange: str | None = None) -> List[AmountIn]:
         """Get the amount of token0 that you need to sell in order to get amountIn token1
 
         @raises BlockchainNotSupportedException: When an invalid blockchain id is given
@@ -473,7 +460,7 @@ class BlockchainAPIs:
         params["amountOut"] = amountOut
         if exchange is not None:
             params["exchange"] = exchange
-        ret = await self._do_request("/v0/exchanges/pairs/amountIn", params)
+        ret = self._do_request("/v0/exchanges/pairs/amountIn", params)
         return [
             AmountIn(
                 blockchain=r["blockchain"],
@@ -487,7 +474,7 @@ class BlockchainAPIs:
         ]
 
 
-    async def tokens(self, page: int = 1, blockchain: str | None = None) -> Tokens:
+    def tokens(self, page: int = 1, blockchain: str | None = None) -> Tokens:
         """Get the list of supported tokens
 
         @raises BlockchainNotSupportedException: When an invalid blockchain id is given
@@ -564,7 +551,7 @@ class BlockchainAPIs:
         params["page"] = page
         if blockchain is not None:
             params["blockchain"] = blockchain
-        ret = await self._do_request("/v0/tokens/", params)
+        ret = self._do_request("/v0/tokens/", params)
         return Tokens(
             page=ret["page"],
             total_pages=ret["total_pages"],
@@ -580,7 +567,7 @@ class BlockchainAPIs:
         )
 
 
-    async def info(self, blockchain: str, token: str) -> Token:
+    def info(self, blockchain: str, token: str) -> Token:
         """Get information on a specific token
 
         @raises BlockchainNotSupportedException: When an invalid blockchain id is given
@@ -614,7 +601,7 @@ class BlockchainAPIs:
         params = {}
         params["blockchain"] = blockchain
         params["token"] = token
-        ret = await self._do_request("/v0/tokens/info", params)
+        ret = self._do_request("/v0/tokens/info", params)
         return Token(
             blockchain=ret["blockchain"],
             address=ret["address"],
@@ -623,7 +610,7 @@ class BlockchainAPIs:
         )
 
 
-    async def decimals(self, blockchain: str, token: str) -> int:
+    def decimals(self, blockchain: str, token: str) -> int:
         """Get the decimals of the given token
 
         @raises HTTPValidationError: Validation Error
@@ -644,6 +631,6 @@ class BlockchainAPIs:
         params = {}
         params["blockchain"] = blockchain
         params["token"] = token
-        ret = await self._do_request("/v0/tokens/decimals", params)
+        ret = self._do_request("/v0/tokens/decimals", params)
         return int(ret)
 
