@@ -125,6 +125,18 @@ asyncio.run(print_{method.name}())
 
         return ret
 
+    def _write_object(self, object_to_write: str) -> str:
+        to_write = '<CodeBlock language="python">\n'
+        if "List" in object_to_write:
+            list_object = object_to_write.replace("List[", "")
+            list_object = list_object.replace("]", "")
+            link_to_return_type = f'<a href="/docs/python-sdk/models/{list_object}">{list_object}</a>'
+            to_write += f'    List[{link_to_return_type}]\n'
+        else:
+            to_write += f'    <a href="/docs/python-sdk/models/{object_to_write}">{object_to_write}</a>'
+            to_write += "\n"
+        return to_write
+
     def _write_method(self, folder_name: str, method: MainClassMethod, main_class_name: str):
         to_write = self._get_metadata(method.name, method.short_description)
         to_write += "\n"
@@ -138,15 +150,7 @@ asyncio.run(print_{method.name}())
             for parameter in method.parameters:
                 to_write += f" - [{parameter.name}](#{parameter.name}): {parameter.description}\n"
         to_write += "\n## Returns\n\n"
-        to_write += '<CodeBlock language="python">\n'
-        if "List" in method.return_type:
-            list_object = method.return_type.replace("List[", "")
-            list_object = list_object.replace("]", "")
-            link_to_return_type = f'<a href="/docs/python-sdk/models/{list_object}">{list_object}</a>'
-            to_write += f'    List[{link_to_return_type}]\n'
-        else:
-            to_write += f'    <a href="/docs/python-sdk/models/{method.return_type}">{method.return_type}</a>'
-            to_write += "\n"
+        to_write += self._write_object(method.return_tye)
 
         to_write += '</CodeBlock>\n\n'
 
@@ -191,8 +195,17 @@ asyncio.run(print_{method.name}())
             ret += f"### {attribute.name}\n\n"
             ret += attribute.attribute_description
             ret += "\n"
-            ret += f'- type: `{attribute.attribute_type}`\n'
-            ret += f'- example: `{attribute.example}`\n\n'
+            if "List" in attribute.example:
+                ret += "#### Type\n\n"
+                ret += self._write_object(attribute.attribute_type)
+                ret += "\n"
+                ret += "#### Example\n\n"
+                ret += "```json\n"
+                ret += attribute.example
+                ret += "\n```\n\n"
+            else:
+                ret += f'- type: `{attribute.attribute_type}`\n'
+                ret += f'- example: `{attribute.example}`\n\n'
 
         return ret
 
@@ -200,6 +213,7 @@ asyncio.run(print_{method.name}())
         file_name = create_folder_name(model.name)
         to_write = self._get_metadata(model.name, model.short_description)
         to_write += "\n"
+        to_write += "import CodeBlock from '@theme/CodeBlock';\n\n"
         to_write += "```py\n"
         to_write += "@dataclass(slots=True, frozen=True)\n"
         to_write += model.class_definition
@@ -211,7 +225,7 @@ asyncio.run(print_{method.name}())
         to_write += "\n## Attributes\n\n"
         to_write += self._add_attributes(model.attributes)
 
-        with open(os.path.join(self._dest_path, "models", file_name + ".md"), "w+") as f:
+        with open(os.path.join(self._dest_path, "models", file_name + ".mdx"), "w+") as f:
             f.write(to_write)
 
     def _write_exception(self, exception: ExceptionModel):
