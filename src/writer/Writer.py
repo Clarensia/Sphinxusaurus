@@ -1,5 +1,6 @@
 import os
 import sys
+from src.dataclasses.ExceptionModel import ExceptionModel
 from src.dataclasses.Model import Model
 
 from src.dataclasses.Project import Project
@@ -204,6 +205,9 @@ asyncio.run(print_{method.name}())
 
         with open(os.path.join(self._dest_path, "models", file_name + ".md"), "w+") as f:
             f.write(to_write)
+
+    def _write_exception(self, exception: ExceptionModel):
+        pass
 
     def write(self, project: Project):
         self._create_dest_folder()

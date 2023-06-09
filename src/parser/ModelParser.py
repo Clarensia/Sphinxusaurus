@@ -14,6 +14,7 @@ class ModelParser(FileParser):
         class_nodes = [node for node in tree.body if isinstance(node, ast.ClassDef)]
         ret = Model()
         for node in class_nodes:
+            ret.name = node.name
             ret.class_definition = f"class {node.name}"
             class_docstring = ast.get_docstring(node)
             if class_docstring:
