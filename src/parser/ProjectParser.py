@@ -27,7 +27,9 @@ class ProjectParser:
         ret = Project()
         main_files_paths = [join(folder_location, f) for f in listdir(folder_location) if isfile(join(folder_location, f))]
         for main_file in main_files_paths:
-            ret.main_classes.append(self._main_class_parser.parse_file(main_file))
+            # Prevent parsing of __init__.py because we don't use it.
+            if "__init__.py" not in main_file:
+                ret.main_classes.append(self._main_class_parser.parse_file(main_file))
 
         models_folder = join(folder_location, "models")
         models_files = [f for f in listdir(models_folder) if isfile(join(models_folder, f))]
