@@ -66,7 +66,7 @@ class Writer:
             f.write(to_write)
 
     def _write_main_file(self, folder: str, project: Project, sidebar_position: int):
-        main_file_desc: ModuleInit = project.init_doc[sidebar_position]
+        main_file_desc: ModuleInit = project.init_doc[folder]
         self._create_module_main_file(folder, folder, main_file_desc.short_description, sidebar_position, main_file_desc.long_description)
 
     def _get_usage(self, method: MainClassMethod, main_class_name: str) -> str:
