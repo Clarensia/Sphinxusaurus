@@ -48,9 +48,8 @@ class Writer:
         ret = "---\n"
         ret += f"title: {title}\n"
         ret += f"description: {description}\n"
-        ret += f"sidebar_position: {sidebar_position}"
+        ret += f"sidebar_position: {sidebar_position}\n"
         if sidebar_class_name is not None:
-            ret += "sidebar_position: 3\n"
             ret += f"sidebar_class_name: {sidebar_class_name}\n"
         ret += "---\n"
         
