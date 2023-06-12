@@ -55,8 +55,8 @@ class Writer:
         
         return ret
 
-    def _create_module_main_file(self, folder_name: str, class_name: str, short_description: str, long_description: str):
-        to_write = self._get_metadata(class_name, short_description, 0, f"sidebar-{folder_name}")
+    def _create_module_main_file(self, folder_name: str, class_name: str, short_description: str, folder_sidebar_position: int, long_description: str):
+        to_write = self._get_metadata(class_name, short_description, folder_sidebar_position, f"sidebar-{folder_name}")
         to_write += "\n"
 
         to_write += long_description
@@ -189,12 +189,13 @@ asyncio.run(print_{method.name}())
         with open(os.path.join(self._dest_path, folder_name, f"{filename}.mdx"), "w+") as f:
             f.write(to_write)
 
-    def _write_main_class(self, main_class: MainClass):
+    def _write_main_class(self, main_class: MainClass, folder_sidebar_position: int):
         folder_name = create_folder_name(main_class.name)
         self._create_folder_in_dest(folder_name)
         self._create_module_main_file(folder_name,
                                       main_class.name,
                                       main_class.short_description,
+                                      folder_sidebar_position,
                                       main_class.long_description)
         sidebar_position = 1
         for method in main_class.methods:
@@ -257,8 +258,10 @@ asyncio.run(print_{method.name}())
 
     def write(self, project: Project):
         self._create_dest_folder()
+        folder_sidebar_position = 1
         for main_class in project.main_classes:
-            self._write_main_class(main_class)
+            self._write_main_class(main_class, folder_sidebar_position)
+            folder_sidebar_position += 1
 
         model_sidebar_index = 1
         for model in project.models:
