@@ -267,5 +267,13 @@ asyncio.run(print_{method.name}())
 
         exception_sidebar_index = 1
         for exception in project.exceptions:
-            self._write_exception(exception, exception_sidebar_index)
-            exception_sidebar_index += 1
+            curr_index = exception_sidebar_index
+            # I want a special position for Unauthorized and TooManyRequest because
+            # these exceptions are not related to the other
+            if exception.name == "UnauthorizedException":
+                curr_index = len(project.exceptions) - 1
+            elif exception.name == "TooManyRequestsException":
+                curr_index = len(project.exceptions) - 2
+            else:
+                exception_sidebar_index += 1
+            self._write_exception(exception, curr_index)
