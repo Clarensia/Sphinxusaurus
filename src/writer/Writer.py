@@ -4,6 +4,7 @@ from typing import List
 from src.dataclasses.Attribute import Attribute
 from src.dataclasses.ExceptionModel import ExceptionModel
 from src.dataclasses.Model import Model
+from src.dataclasses.ModuleInit import ModuleInit
 
 from src.dataclasses.Project import Project
 from src.dataclasses.main_class.MainClass import MainClass
@@ -63,6 +64,10 @@ class Writer:
 
         with open(os.path.join(self._dest_path, folder_name, f"{folder_name}.md"), "w+") as f:
             f.write(to_write)
+
+    def _write_main_file(self, folder: str, project: Project, sidebar_position: int):
+        main_file_desc: ModuleInit = project.init_doc[sidebar_position]
+        self._create_module_main_file(folder, folder, main_file_desc.short_description, sidebar_position, main_file_desc.long_description)
 
     def _get_usage(self, method: MainClassMethod, main_class_name: str) -> str:
         """Get the usage of a method. Example return value:
@@ -263,11 +268,15 @@ asyncio.run(print_{method.name}())
             self._write_main_class(main_class, folder_sidebar_position)
             folder_sidebar_position += 1
 
+        self._write_main_file("models", project, folder_sidebar_position)
+        folder_sidebar_position += 1
         model_sidebar_index = 1
         for model in project.models:
             self._write_model(model, model_sidebar_index)
             model_sidebar_index += 1
 
+        self._write_main_file("exceptions", project, folder_sidebar_position)
+        folder_sidebar_position += 1
         exception_sidebar_index = 1
         for exception in project.exceptions:
             curr_index = exception_sidebar_index

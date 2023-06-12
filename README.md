@@ -64,7 +64,7 @@ For class documentation, you can use normal docstring without attributes.
 ## TODO
 
 - [x] Don't document private methods (methods that starts with '_')
-- [ ] Keep order by putting the index in search bar (order of methods and models and exceptions).
+- [x] Keep order by putting the index in search bar (order of methods and models and exceptions).
       This is because the order is important (you want to know how you __init__ before you want
       to make an API call, also you want to know the blockchains before you interact with any of
       them)
