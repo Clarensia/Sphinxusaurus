@@ -57,7 +57,7 @@ class Writer:
         return ret
 
     def _create_module_main_file(self, folder_name: str, class_name: str, short_description: str, long_description: str):
-        to_write = self._get_metadata(class_name, short_description, f"sidebar-{folder_name}")
+        to_write = self._get_metadata(class_name, short_description, 0, f"sidebar-{folder_name}")
         to_write += "\n"
 
         to_write += long_description
@@ -222,9 +222,9 @@ asyncio.run(print_{method.name}())
 
         return ret
 
-    def _write_model(self, model: Model):
+    def _write_model(self, model: Model, sidebar_index: int):
         file_name = create_folder_name(model.name)
-        to_write = self._get_metadata(model.name, model.short_description)
+        to_write = self._get_metadata(model.name, model.short_description, sidebar_index)
         to_write += "\n"
         to_write += "import CodeBlock from '@theme/CodeBlock';\n\n"
         to_write += "```py\n"
@@ -241,9 +241,9 @@ asyncio.run(print_{method.name}())
         with open(os.path.join(self._dest_path, "models", file_name + ".mdx"), "w+") as f:
             f.write(to_write)
 
-    def _write_exception(self, exception: ExceptionModel):
+    def _write_exception(self, exception: ExceptionModel, sidebar_index: int):
         file_name = create_folder_name(exception.name)
-        to_write = self._get_metadata(exception.name, exception.short_description)
+        to_write = self._get_metadata(exception.name, exception.short_description, sidebar_index)
         to_write += "\n"
         to_write += "```py\n"
         to_write += exception.definition
@@ -261,8 +261,12 @@ asyncio.run(print_{method.name}())
         for main_class in project.main_classes:
             self._write_main_class(main_class)
 
+        model_sidebar_index = 1
         for model in project.models:
-            self._write_model(model)
+            self._write_model(model, model_sidebar_index)
+            model_sidebar_index += 1
 
+        exception_sidebar_index = 1
         for exception in project.exceptions:
-            self._write_exception(exception)
+            self._write_exception(exception, exception_sidebar_index)
+            exception_sidebar_index += 1
