@@ -68,3 +68,4 @@ For class documentation, you can use normal docstring without attributes.
       This is because the order is important (you want to know how you __init__ before you want
       to make an API call, also you want to know the blockchains before you interact with any of
       them)
+- [ ] Add main files for models and exceptions also not only the main class instances
