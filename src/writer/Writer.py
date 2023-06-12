@@ -30,13 +30,15 @@ class Writer:
         self._create_folder_in_dest("models")
         self._create_folder_in_dest("exceptions")
 
-    def _get_metadata(self, title: str, description: str, sidebar_class_name: str | None = None) -> str:
+    def _get_metadata(self, title: str, description: str, sidebar_position: int, sidebar_class_name: str | None = None) -> str:
         """Create the metadata header for the given file
 
         :param title: The title of the file
         :type title: str
         :param description: The short description
         :type description: str
+        :param sidebar_position: The index inside of the tab list, this way we keep the index
+        :type sidebar_position: int
         :param sidebar_class_name: If we are in a description of th main file, we put the
                                    class name here. If not, then we create a normal header
         :type sidebar_class_name: str | None
@@ -46,6 +48,7 @@ class Writer:
         ret = "---\n"
         ret += f"title: {title}\n"
         ret += f"description: {description}\n"
+        ret += f"sidebar_position: {sidebar_position}"
         if sidebar_class_name is not None:
             ret += "sidebar_position: 3\n"
             ret += f"sidebar_class_name: {sidebar_class_name}\n"
@@ -139,8 +142,8 @@ asyncio.run(print_{method.name}())
         to_write += '</CodeBlock>\n\n'
         return to_write
 
-    def _write_method(self, folder_name: str, method: MainClassMethod, main_class_name: str):
-        to_write = self._get_metadata(method.name, method.short_description)
+    def _write_method(self, folder_name: str, method: MainClassMethod, main_class_name: str, sidebar_position: int):
+        to_write = self._get_metadata(method.name, method.short_description, sidebar_position)
         to_write += "\n"
         to_write += "import CodeBlock from '@theme/CodeBlock';\n\n"
         to_write += "```py\n"
@@ -194,8 +197,10 @@ asyncio.run(print_{method.name}())
                                       main_class.name,
                                       main_class.short_description,
                                       main_class.long_description)
+        sidebar_position = 1
         for method in main_class.methods:
-            self._write_method(folder_name, method, main_class.name)
+            self._write_method(folder_name, method, main_class.name, sidebar_position)
+            sidebar_position += 1
 
     def _add_attributes(self, attributes: List[Attribute]) -> str:
         ret = ""
