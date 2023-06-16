@@ -204,8 +204,10 @@ asyncio.run(print_{method.name}())
                                       main_class.long_description)
         sidebar_position = 1
         for method in main_class.methods:
-            self._write_method(folder_name, method, main_class.name, sidebar_position)
-            sidebar_position += 1
+            # remove __aexit__ and __aenter__
+            if not method.name.starts_with("_") or method.name == "__init__":
+                self._write_method(folder_name, method, main_class.name, sidebar_position)
+                sidebar_position += 1
 
     def _add_attributes(self, attributes: List[Attribute]) -> str:
         ret = ""
