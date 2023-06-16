@@ -20,20 +20,28 @@ from .exceptions import TokenNotFoundException
 from .exceptions import PairNotFoundException
 from .exceptions import TooManyRequestsException
 from .exceptions import UnauthorizedException
+from .exceptions import UnknownBlockchainAPIsException
 
 
 class BlockchainAPIs:
     """High-frequency DEX API
 
-        
-    Our API empowers you to access live financial data across multiple blockchains (currently supporting 6, with more on the way) with unparalleled speed and efficiency.
+    Our API empowers you to access live financial data across multiple blockchains
+    (currently supporting 6, with more on the way) with unparalleled speed and efficiency.
     
-    What sets our API apart? We've optimized performance to deliver an impressive 1000+ calls per second per user, with a lightning-fast processing time of less than 2 millisecond per request. Compare that to other solutions with a 20-millisecond processing time and fewer requests per second, and it's clear why developers choose our API for their trading bots.
+    What sets our API apart? We've optimized performance to deliver an impressive 1000+
+    calls per second per user, with a lightning-fast processing time of less than 2 millisecond
+    per request. Compare that to other solutions with a 20-millisecond processing time and fewer
+    requests per second, and it's clear why developers choose our API for their trading bots.
     
-    Another game-changing feature is our seamless integration across various blockchains and protocols. With our API, you can reuse the same code without changing a single line, simplifying the development process and saving you valuable time.
+    Another game-changing feature is our seamless integration across various blockchains and
+    protocols. With our API, you can reuse the same code without changing a single line, simplifying
+    the development process and saving you valuable time.
     
-    Ready to try it out? [Sign up for a free API key here](https://dashboard.blockchainapis.io) or start exploring the possibilities on this page. Need support or have questions? Join our [Discord community](https://discord.gg/GphRMJXmS5) where our team and fellow developers are eager to help you make the most of our powerful API.
-
+    Ready to try it out? [Sign up for a free API key here](https://dashboard.blockchainapis.io)
+    or start exploring the possibilities on this page. Need support or have questions? Join our
+    [Discord community](https://discord.gg/GphRMJXmS5) where our team and fellow developers are
+    eager to help you make the most of our powerful API.
     """
 
     _session: ClientSession
@@ -72,10 +80,38 @@ class BlockchainAPIs:
         """
         await self._session.close()
 
+    async def __aenter__(self):
+        """Called when you use `async with`.
+        
+        For example:
+        async with BlockchainAPIs() as blockchain_apis:
+            # do some stuff
+            pass
+
+        :return: self
+        :rtype: self
+        """
+        return self
+
+    async def __aexit__(self, *_):
+        """Called at the end of the `async with` statement in order
+        to free the resources used by the API instance.
+        """
+        await self.close()
+
     async def _do_request(self, path: str, params: Dict[str, Any] | None = None) -> Dict[str, Any]:
         """Make raw API request (that return the json result).
         
         This method additionaly adds the user API key to the request if it is present.
+
+        :raises BlockchainNotSupportedException: Thrown when an Invalid blockchain id is put during a call to the API.
+        :raises ExchangeNotSupportedException: Thrown when an Invalid exchange id is given during a call to the API.
+        :raises InvalidPageException: Thrown when you given an invalid page index during calls to responses thatgives paginated results.
+        :raises TokenNotFoundException: Thrown when you try to get informations on a token that does not exist inside of our database.
+        :raises PairNotFoundException: Thrown when you try to get some data about a pair that does not exist.
+        :raises TooManyRequestsException: Thrown when you are doing more request than you are allowed to the API.
+        :raises UnauthorizedException: Thrown when you are trying to make an API request with an invalid or expiredAPI key.
+        :raises UnknownBlockchainAPIsException: When an unknown exception happens
 
         :param path: The path to the request
         :type path: str
@@ -103,8 +139,8 @@ class BlockchainAPIs:
                         raise TooManyRequestsException(response.status, error_data["detail"]["detail"])
                     case "UnauthorizedException":
                         raise UnauthorizedException(response.status, error_data["detail"]["detail"])
-                    case unknown:
-                        raise Exception(f"Unkwnown Exception type: {unknown}.\nGot this exception while handling:\n{error_data} with status code: {response.status}")
+                    case _:
+                        raise UnknownBlockchainAPIsException(response.status, f"Unkwnown Exception type: {error_type}.\nGot this exception while handling:\n{error_data} with status code: {response.status}")
 
             return await response.json()
 
@@ -636,7 +672,8 @@ class BlockchainAPIs:
     async def decimals(self, blockchain: str, token: str) -> int:
         """Get the decimals of the given token
 
-        :raises HTTPValidationError: Validation Error
+        :raises BlockchainNotSupportedException: When an invalid blockchain id is given
+        :raises TokenNotFoundException: WHen the given token is not found
 
         :param blockchain: The id of the blockchain of the token
         :type blockchain: str
@@ -658,3 +695,86 @@ class BlockchainAPIs:
         params["token"] = token
         ret = await self._do_request("/v0/tokens/decimals", params)
         return int(ret)
+
+    def get_token_decimal_form(self, amount: int, decimals: int) -> str:
+        """Convert a token from his unsigned integer form to his decimal form.
+        
+        This method should be used when you want to display a token to a user.
+        
+        For highest precision, the implementation is made using only str.
+
+        :param amount: The integer amount that you want to convert
+        :type amount: int
+        :example amount: 2500000000000000000
+        :param decimals: The amount of decimals that the token you are trying to convert
+                         has. You can use the [decimals](/docs/python-sdk/blockchain-apis/decimals)
+                         method in order to get the amount of decimals.
+        :type decimals: int
+        :example decimals: 18
+        :return: The given amount in a decimal form.
+        
+        Example response:
+        ```json
+        2.5
+        ```
+        :rtype: str
+        """
+        str_amount = str(amount)
+
+        # special case when decimals is 0
+        if decimals == 0:
+            return str_amount
+
+        # Check if the string length is less than the decimals
+        if len(str_amount) <= decimals:
+            # Add leading zeros to the string
+            str_amount = '0' * (decimals - len(str_amount) + 1) + str_amount
+            
+        # Insert the decimal point at the correct position
+        str_amount = str_amount[:-decimals] + "." + str_amount[-decimals:]
+        
+        str_amount = str_amount.rstrip('0').rstrip('.') if '.' in str_amount else str_amount
+        return str_amount
+
+    def get_token_unsigned_form(self, amount: str, decimals: int) -> int:
+        """Convert a token from his decimal form back to his unsigned integer form (this
+        method does the reverse of get_token_decimal_form)
+        
+        This method should be used when you receive an amount from a user, in order to convert his
+        input.
+
+        For the highest precision, the implementation only uses str
+
+        :param amount: The amount in str format that you want to convert
+        :type amount: str
+        :example amount: 2.5
+        :param decimals: The amount of decimals that the token has. You can use the [decimals](/docs/python-sdk/blockchain-apis/decimals)
+                         method in order to get the amount of decimals.
+        :type decimals: int
+        :example decimals: 18
+        :return: The amount converted to unsigned integer
+        
+        Example response:
+        ```json
+        2500000000000000000
+        ```
+        :rtype: int
+        """
+        split = amount.split('.')
+        if len(split) >= 2:
+            integer_part, fractional_part = split
+        else:
+            integer_part, fractional_part = split[0], ""
+
+        # Check if the fractional part has less digits than the decimal places
+        if len(fractional_part) < decimals:
+            # Append zeros to the end of the fractional part
+            fractional_part += '0' * (decimals - len(fractional_part))
+        else:
+            # Trim the fractional part to the number of decimal places
+            fractional_part = fractional_part[:decimals]
+
+        # Combine the integer and fractional parts and convert to an integer
+        integer_token_amount = int(integer_part + fractional_part)
+
+        return integer_token_amount
