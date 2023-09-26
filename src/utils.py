@@ -12,15 +12,15 @@ def get_short_description(long_description: str) -> str:
     """
     return long_description.split("\n\n", 1)[0].replace("\n", "")
 
-def create_folder_name(camel_case_class: str) -> str:
-    """Transform a CamelCase class name to a name with a hyphen.
+def camel_to_dash_case(camel_case_name: str) -> str:
+    """Transform a CamelCase name to a name with dashes.
     
     For example:
     CamelCase -> camel-case
 
-    :param camel_case_class: The name of the class in CamelCase
-    :type camel_case_class: str
-    :return: The name of the class in lowercase with hyphen separation: camel-case
+    :param camel_case_name: The name of the string to transform in CamelCase
+    :type camel_case_name: str
+    :return: The name of the string in lowercase with hyphen separation: camel-case
     :rtype: str
     """
-    return re.sub('([a-z0-9])([A-Z])', r'\1-\2', camel_case_class).lower()
+    return re.sub('([a-z0-9])([A-Z])', r'\1-\2', camel_case_name).lower()

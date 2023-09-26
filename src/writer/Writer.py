@@ -9,7 +9,7 @@ from src.dataclasses.ModuleInit import ModuleInit
 from src.dataclasses.Project import Project
 from src.dataclasses.main_class.MainClass import MainClass
 from src.dataclasses.main_class.MainClassMethod import MainClassMethod
-from src.utils import create_folder_name
+from src.utils import camel_to_dash_case
 
 
 class Writer:
@@ -101,7 +101,7 @@ class Writer:
         :return: The usage string
         :rtype: str
         """
-        instance_name = create_folder_name(main_class_name).replace("-", "_")
+        instance_name = camel_to_dash_case(main_class_name).replace("-", "_")
         ret = f'''```py
 import asyncio
 
@@ -175,7 +175,7 @@ asyncio.run(print_{method.name}())
             if len(method.exceptions) > 0:
                 to_write += "\n## Exceptions\n\n"
                 for exception in method.exceptions:
-                    to_write += f'- [{exception.exception}](/docs/python-sdk/exceptions/{create_folder_name(exception.exception)}): {exception.description}\n'
+                    to_write += f'- [{exception.exception}](/docs/python-sdk/exceptions/{camel_to_dash_case(exception.exception)}): {exception.description}\n'
         if len(method.parameters) > 0:
             to_write += "\n## Parameters detailed"
             to_write += "\n"
@@ -195,7 +195,7 @@ asyncio.run(print_{method.name}())
             f.write(to_write)
 
     def _write_main_class(self, main_class: MainClass, folder_sidebar_position: int):
-        folder_name = create_folder_name(main_class.name)
+        folder_name = camel_to_dash_case(main_class.name)
         self._create_folder_in_dest(folder_name)
         self._create_module_main_file(folder_name,
                                       main_class.name,
@@ -230,7 +230,7 @@ asyncio.run(print_{method.name}())
         return ret
 
     def _write_model(self, model: Model, sidebar_index: int):
-        file_name = create_folder_name(model.name)
+        file_name = camel_to_dash_case(model.name)
         to_write = self._get_metadata(model.name, model.short_description, sidebar_index)
         to_write += "\n"
         to_write += "import CodeBlock from '@theme/CodeBlock';\n\n"
@@ -249,7 +249,7 @@ asyncio.run(print_{method.name}())
             f.write(to_write)
 
     def _write_exception(self, exception: ExceptionModel, sidebar_index: int):
-        file_name = create_folder_name(exception.name)
+        file_name = camel_to_dash_case(exception.name)
         to_write = self._get_metadata(exception.name, exception.short_description, sidebar_index)
         to_write += "\n"
         to_write += "```py\n"
