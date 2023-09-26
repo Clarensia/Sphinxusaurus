@@ -205,7 +205,7 @@ asyncio.run(print_{method.name}())
         sidebar_position = 1
         for method in main_class.methods:
             # remove __aexit__ and __aenter__
-            if not method.name.starts_with("_") or method.name == "__init__":
+            if not method.name.startswith("_") or method.name == "__init__":
                 self._write_method(folder_name, method, main_class.name, sidebar_position)
                 sidebar_position += 1
 
