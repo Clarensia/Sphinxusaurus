@@ -24,3 +24,17 @@ def camel_to_dash_case(camel_case_name: str) -> str:
     :rtype: str
     """
     return re.sub('([a-z0-9])([A-Z])', r'\1-\2', camel_case_name).lower()
+
+def is_native_type(obj: str) -> bool:
+    """Verify if the given string object is a native type or not.
+    
+    A native type is for example:
+    - "int"
+    - "str"
+
+    :param obj: The object that we are willing to write
+    :type obj: str
+    :return: `True` if the given object is a native type, `False` otherwise
+    :rtype: bool
+    """
+    return obj == "int" or obj == "str"

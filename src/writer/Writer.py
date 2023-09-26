@@ -9,7 +9,7 @@ from src.dataclasses.ModuleInit import ModuleInit
 from src.dataclasses.Project import Project
 from src.dataclasses.main_class.MainClass import MainClass
 from src.dataclasses.main_class.MainClassMethod import MainClassMethod
-from src.utils import camel_to_dash_case
+from src.utils import camel_to_dash_case, is_native_type
 
 
 class Writer:
@@ -137,8 +137,14 @@ asyncio.run(print_{method.name}())
         if "List" in object_to_write:
             list_object = object_to_write.replace("List[", "")
             list_object = list_object.replace("]", "")
-            link_to_return_type = f'<a href="/docs/python-sdk/models/{camel_to_dash_case(list_object)}">{list_object}</a>'
+            # We don't need a link because it is a native Python type
+            if is_native_type(list_object):
+                link_to_return_type = list_object
+            else:
+                link_to_return_type = f'<a href="/docs/python-sdk/models/{camel_to_dash_case(list_object)}">{list_object}</a>'
             to_write += f'    List[{link_to_return_type}]\n'
+        elif is_native_type(object_to_write):
+            to_write += f'    {object_to_write}\n'
         else:
             to_write += f'    <a href="/docs/python-sdk/models/{camel_to_dash_case(object_to_write)}">{object_to_write}</a>'
             to_write += "\n"
