@@ -137,10 +137,10 @@ asyncio.run(print_{method.name}())
         if "List" in object_to_write:
             list_object = object_to_write.replace("List[", "")
             list_object = list_object.replace("]", "")
-            link_to_return_type = f'<a href="/docs/python-sdk/models/{list_object}">{list_object}</a>'
+            link_to_return_type = f'<a href="/docs/python-sdk/models/{camel_to_dash_case(list_object)}">{list_object}</a>'
             to_write += f'    List[{link_to_return_type}]\n'
         else:
-            to_write += f'    <a href="/docs/python-sdk/models/{object_to_write}">{object_to_write}</a>'
+            to_write += f'    <a href="/docs/python-sdk/models/{camel_to_dash_case(object_to_write)}">{object_to_write}</a>'
             to_write += "\n"
         
         to_write += '</CodeBlock>\n\n'
