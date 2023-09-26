@@ -175,7 +175,7 @@ asyncio.run(print_{method.name}())
             if len(method.exceptions) > 0:
                 to_write += "\n## Exceptions\n\n"
                 for exception in method.exceptions:
-                    to_write += f'- [{exception.exception}](/docs/python-sdk/exceptions/{exception.exception}): {exception.description}\n'
+                    to_write += f'- [{exception.exception}](/docs/python-sdk/exceptions/{create_folder_name(exception.exception)}): {exception.description}\n'
         if len(method.parameters) > 0:
             to_write += "\n## Parameters detailed"
             to_write += "\n"
